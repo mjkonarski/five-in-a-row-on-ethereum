@@ -20,7 +20,7 @@ ol, ul {
   margin-bottom: 10px;
 }
 
-.square {
+.cell {
   background: #fff;
   border: 1px solid #999;
   float: left;
@@ -43,16 +43,15 @@ ol, ul {
   background: #ddd;
 }
 
-.game-board {
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .game {
-  display: flex;
-  flex-direction: row;
+  margin: auto;
 }
 
-.game-info {
-  margin-left: 20px;
-}
+/*.game-board {*/
+  /*margin-left: auto;*/
+  /*margin-right: auto;*/
+/*}*/
+
+/*.game-info {*/
+  /*margin-left: 20px;*/
+/*}*/
