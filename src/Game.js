@@ -5,7 +5,7 @@ class Game extends React.Component {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board size={10} eth={this.props.eth}/>
+                    <Board size={10} eth={this.props.eth} gameId={this.props.gameId}/>
                     <div>
                         Game ID: {this.props.gameId}
                     </div>
@@ -34,7 +34,7 @@ class Board extends React.Component {
     }
 
     readBoardState() {
-        this.props.eth.contract.getBoard(0).then((board) => {
+        this.props.eth.contract.getBoard(this.props.gameId).then((board) => {
             var boardState = new Array(Board.BOARD_SIZE);
 
             for (var row = 0; row < Board.BOARD_SIZE; row++) {

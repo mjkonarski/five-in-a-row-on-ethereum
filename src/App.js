@@ -3,7 +3,7 @@ import './App.css';
 import Game from './Game.js';
 import ListGames from './ListGames.js';
 import Web3 from 'web3';
-import abi from './abi.js';
+import Config from './abi.js';
 import Eth from 'ethjs-query';
 import EthContract from 'ethjs-contract';
 import {Route, BrowserRouter as Router, Link} from 'react-router-dom'
@@ -25,14 +25,13 @@ class App extends React.Component {
             web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
         }
 
-        const address = '0x6ee3a20b862d1e10c30868e6d0b2c5c9089581f3';
+        const address = '0x848d364d589b9ebaadd453a3e75bb4cf9d14fdf9';
 
         const eth = new Eth(web3.currentProvider);
-        const contract = (new EthContract(eth))(abi).at(address);
+        const contract = (new EthContract(eth))(Config.abi, Config.byteCode, { from: web3.eth.accounts[0] }).at(address);
         const currentAccount = web3.eth.accounts[0];
 
         this.state = {
-            page: 'listGames',
             eth: {
                 currentAccount: currentAccount,
                 contract: contract,
@@ -53,7 +52,9 @@ class App extends React.Component {
                             <GameMenu/>
                             <Layout style={{padding: '0 24px 24px'}}>
                                 <Content className="content" style={{}}>
-                                    <Route path="/listGames" component={ListGames}/>
+                                    <Route path="/listGames" render={_ => (
+                                        <ListGames eth={this.state.eth}/>
+                                    )}/>
                                     <Route path="/game/:gameId" render={props => (
                                         <Game eth={this.state.eth} gameId={props.match.params.gameId}/>
                                     )}/>
