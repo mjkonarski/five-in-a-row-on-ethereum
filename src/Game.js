@@ -1,5 +1,20 @@
 import React from "react";
 
+class Game extends React.Component {
+    render() {
+        return (
+            <div className="game">
+                <div className="game-board">
+                    <Board size={10} eth={this.props.eth}/>
+                    <div>
+                        Game ID: {this.props.gameId}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
 class Board extends React.Component {
     static BOARD_SIZE = 10
 
@@ -94,4 +109,4 @@ class Cell extends React.Component {
     }
 }
 
-export default Board;
+export default Game;

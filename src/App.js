@@ -1,17 +1,18 @@
-import React, {Component} from 'react';
+import React from 'react';
 import './App.css';
-import Board from './Game.js';
+import Game from './Game.js';
+import ListGames from './ListGames.js';
 import Web3 from 'web3';
 import abi from './abi.js';
 import Eth from 'ethjs-query';
 import EthContract from 'ethjs-contract';
+import {Route, BrowserRouter as Router, Link} from 'react-router-dom'
 
-import {Layout, Menu, Dropdown, Button, Icon, Breadcrumb} from 'antd';
+import {Layout, Menu, Icon} from 'antd';
 
-const {SubMenu} = Menu;
-const {Header, Content, Footer, Sider} = Layout;
+const {Header, Content, Sider} = Layout;
 
-class App extends Component {
+class App extends React.Component {
     constructor(props) {
         super(props)
 
@@ -31,6 +32,7 @@ class App extends Component {
         const currentAccount = web3.eth.accounts[0];
 
         this.state = {
+            page: 'listGames',
             eth: {
                 currentAccount: currentAccount,
                 contract: contract,
@@ -42,16 +44,27 @@ class App extends Component {
 
     render() {
         return (
-            <div className="App">
-                <Layout className="layout">
-                    <GameHeader eth={this.state.eth}/>
+            <Router>
+                <div className="App">
+                    <Layout className="layout">
+                        <GameHeader eth={this.state.eth}/>
 
-                    <Layout>
-                        <GameMenu/>
-                        <Game eth={this.state.eth} />
+                        <Layout>
+                            <GameMenu/>
+                            <Layout style={{padding: '0 24px 24px'}}>
+                                <Content className="content" style={{}}>
+                                    <Route path="/listGames" component={ListGames}/>
+                                    <Route path="/game/:gameId" render={props => (
+                                        <Game eth={this.state.eth} gameId={props.match.params.gameId}/>
+                                    )}/>
+                                    {/*>*/}
+                                </Content>
+                            </Layout>
+
+                        </Layout>
                     </Layout>
-                </Layout>
-            </div>
+                </div>
+            </Router>
         );
     }
 
@@ -66,8 +79,9 @@ class GameMenu extends React.Component {
                     defaultSelectedKeys={['listGames']}
                     style={{height: '100%', borderRight: 0}}
                 >
-                    <Menu.Item key="newGame"><Icon type="plus"/>New game</Menu.Item>
-                    <Menu.Item key="listGames"><Icon type="bars"/>List games</Menu.Item>
+
+                    <Menu.Item key="newGame"><span><Icon type="plus"/><Link to="/newGame">New game</Link></span></Menu.Item>
+                    <Menu.Item key="listGames"><span><Icon type="bars"/><Link to="/listGames">ListGames</Link></span></Menu.Item>
                     <Menu.Item key="playGame"><Icon type="rocket"/>Play game!</Menu.Item>
 
                 </Menu>
@@ -87,22 +101,6 @@ class GameHeader extends React.Component {
                     <div> Current account: {this.props.eth.currentAccount} </div>
                 </div>
             </Header>
-        );
-    }
-}
-
-class Game extends React.Component {
-    render() {
-        return (
-            <Layout style={{padding: '0 24px 24px'}}>
-                <Content className="content" style={{}}>
-                    <div className="game">
-                        <div className="game-board">
-                            <Board size={10} eth={this.props.eth}/>
-                        </div>
-                    </div>
-                </Content>
-            </Layout>
         );
     }
 }
