@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import Game from './Game.js';
 import ListGames from './ListGames.js';
+import WrappedNewGame from './NewGame.js';
 import Web3 from 'web3';
 import Config from './abi.js';
 import Eth from 'ethjs-query';
@@ -25,16 +26,19 @@ class App extends React.Component {
             web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
         }
 
-        const address = '0x848d364d589b9ebaadd453a3e75bb4cf9d14fdf9';
+        const address = '0xa5392cd0d7d212f9dc06a452ea90930e12b64e87';
 
         const eth = new Eth(web3.currentProvider);
         const contract = (new EthContract(eth))(Config.abi, Config.byteCode, { from: web3.eth.accounts[0] }).at(address);
         const currentAccount = web3.eth.accounts[0];
 
+        const web3contract = web3.eth.contract(Config.abi).at(address);
+
         this.state = {
             eth: {
                 currentAccount: currentAccount,
                 contract: contract,
+                web3contract: web3contract,
                 web3: web3
             }
         };
@@ -52,13 +56,15 @@ class App extends React.Component {
                             <GameMenu/>
                             <Layout style={{padding: '0 24px 24px'}}>
                                 <Content className="content" style={{}}>
+                                    <Route path="/newGame" render={_ => (
+                                        <WrappedNewGame eth={this.state.eth}/>
+                                    )}/>
                                     <Route path="/listGames" render={_ => (
                                         <ListGames eth={this.state.eth}/>
                                     )}/>
                                     <Route path="/game/:gameId" render={props => (
                                         <Game eth={this.state.eth} gameId={props.match.params.gameId}/>
                                     )}/>
-                                    {/*>*/}
                                 </Content>
                             </Layout>
 

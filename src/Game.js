@@ -6,9 +6,6 @@ class Game extends React.Component {
             <div className="game">
                 <div className="game-board">
                     <Board size={10} eth={this.props.eth} gameId={this.props.gameId}/>
-                    <div>
-                        Game ID: {this.props.gameId}
-                    </div>
                 </div>
             </div>
         );
@@ -21,6 +18,9 @@ class Board extends React.Component {
     constructor(props) {
         super(props)
 
+        this.makeMove = this.makeMove.bind(this);
+        this.watchMove = this.watchMove.bind(this);
+
         var boardState = new Array(Board.BOARD_SIZE);
         for (var i = 0; i < Board.BOARD_SIZE; i++) {
             boardState[i] = new Array(Board.BOARD_SIZE);
@@ -31,6 +31,14 @@ class Board extends React.Component {
         };
 
         this.readBoardState();
+
+        this.props.eth.web3contract.Move().watch(this.watchMove);
+    }
+
+    watchMove(error, result) {
+        if (!error) {
+            this.readBoardState();
+        }
     }
 
     readBoardState() {
@@ -49,6 +57,17 @@ class Board extends React.Component {
         });
     }
 
+    makeMove(row, col) {
+        console.log(`row = ${row} col = ${col}`)
+
+        this.props.eth.contract.makeMove(this.props.gameId, row, col)
+            .then((txHash) => {
+                console.log(txHash);
+            }).catch((err) => {
+            console.log(err.message);
+        });
+    }
+
     render() {
         return (
             <div>
@@ -56,7 +75,7 @@ class Board extends React.Component {
                     Array(this.props.size)
                         .fill(null)
                         .map((_, i) => <Row key={`row${i}`} row={i} eth={this.props.eth} size={this.props.size}
-                                            rowState={this.state.boardState[i]}/>)
+                                            makeMove={this.makeMove} rowState={this.state.boardState[i]}/>)
                 }
             </div>
         );
@@ -66,7 +85,7 @@ class Board extends React.Component {
 class Row extends React.Component {
     createCell(row, col, value) {
         return (
-            <Cell key={`cell${row}_${col}`} eth={this.props.eth} col={col} row={row} value={value}/>
+            <Cell key={`cell${row}_${col}`} makeMove={this.props.makeMove} eth={this.props.eth} col={col} row={row} value={value}/>
         )
     }
 
@@ -84,26 +103,22 @@ class Row extends React.Component {
 }
 
 class Cell extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.handleClick = this.handleClick.bind(this)
-    }
-
-    handleClick() {
-        console.log(`row = ${this.props.row} col = ${this.props.col}`)
-
-        let account = this.props.eth.web3.eth.accounts[0];
-
-        this.props.eth.contract.makeMove(0, this.props.row, this.props.col, {from: account}).then((txHash) => {
-            console.log(txHash);
-        });
-    }
-
     render() {
+        var value;
+        switch(this.props.value) {
+            case 1:
+                value = 'X';
+                break;
+            case 2:
+                value = 'O';
+                break;
+            default:
+                value = '';
+        }
+
         return (
-            <button className="cell" onClick={this.handleClick}>
-                {this.props.value}
+            <button className="cell" onClick={((e) => this.props.makeMove(this.props.row, this.props.col, e))}>
+                {value}
             </button>
         );
     }
